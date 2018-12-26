@@ -1,0 +1,13 @@
+// $Id$
+// vim:ft=javascript
+
+// If your extension references something external, use ARG_WITH
+// ARG_WITH("php-tree", "for php-tree support", "no");
+
+// Otherwise, use ARG_ENABLE
+// ARG_ENABLE("php-tree", "enable php-tree support", "no");
+
+if (PHP_PHP-TREE != "no") {
+	EXTENSION("php-tree", "php-tree.c", PHP_EXTNAME_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+}
+
