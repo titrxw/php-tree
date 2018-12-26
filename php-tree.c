@@ -32,19 +32,27 @@ PHP_INI_END()
 /* Every user-visible function in PHP should document itself in the source */
 /* {{{ proto string confirm_php-tree_compiled(string arg)
    Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_php-tree_compiled)
-{
-	char *arg = NULL;
-	size_t arg_len, len;
-	zend_string *strg;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &arg, &arg_len) == FAILURE) {
-		return;
+PHP_FUNCTION(tree)
+{
+	zval *arrayData;
+	char *parentId = "0";
+	int idLen = strlen(*parentId);
+	char *parentIdKey = "pid";
+	int keyLen = strlen(*parentIdKey);
+
+	zval *retValue =NULL;
+	ALLOC_ZVAL(retValue);
+	array_init(retValue);
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|s|s",&arrayData,&parentId,&idLen, &parentIdKey,&keyLen) == FAILURE){
+			RETURN_ARR(retValue);
 	}
 
-	strg = strpprintf(0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "php-tree", arg);
+	ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(arrayData), index, key, entry) {
+        
+  }ZEND_HASH_FOREACH_END();
 
-	RETURN_STR(strg);
 }
 /* }}} */
 /* The previous line is meant for vim and emacs, so it can correctly fold and
@@ -114,6 +122,7 @@ PHP_MINFO_FUNCTION(php-tree)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "php-tree support", "enabled");
+  php_info_print_table_row(2, "author", "rxw"); /* Replace with your name */
 	php_info_print_table_end();
 
 	/* Remove comments if you have entries in php.ini
@@ -127,7 +136,7 @@ PHP_MINFO_FUNCTION(php-tree)
  * Every user visible function must have an entry in php-tree_functions[].
  */
 const zend_function_entry php-tree_functions[] = {
-	PHP_FE(confirm_php-tree_compiled,	NULL)		/* For testing, remove later. */
+	PHP_FE(tree, NULL)
 	PHP_FE_END	/* Must be the last line in php-tree_functions[] */
 };
 /* }}} */
