@@ -44,13 +44,22 @@ zval *findChildren (zval *data, char *parentId, char *pkey)
 	zend_string *key = NULL, *tpid = NULL;
   zend_ulong index;
 
-	ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(data), index, key, entry) {
+	data = Z_ARRVAL_P(data);
+
+	ZEND_HASH_FOREACH_KEY_VAL(data, index, key, entry) {
 		tpid = Z_STRVAL_P(zend_hash_find(Z_ARRVAL_P(entry), pkey));
 		if (*tpid == *parentId) {
-			add_assoc_zval(entry, "children", findChildren(data,tpid,pkey));
 			add_next_index_zval(children,entry);
+			zend_hash_index_del(data, NULL, 0, index, HASH_DEL_INDEX)
 		}
   }ZEND_HASH_FOREACH_END();
+
+	ZEND_HASH_FOREACH_KEY_VAL(children, index, key, entry) {
+		tpid = Z_STRVAL_P(zend_hash_find(Z_ARRVAL_P(entry), pkey));
+		add_assoc_zval(entry, "children", findChildren(data,tpid,pkey));
+		zend_hash_index_update(children, index, entry);
+  }ZEND_HASH_FOREACH_END();
+
 	add_assoc_zval(retValue, "children", children);
 
 	return retValue;
