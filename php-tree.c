@@ -33,6 +33,29 @@ PHP_INI_END()
 /* {{{ proto string confirm_php-tree_compiled(string arg)
    Return a string to confirm that the module is compiled in */
 
+
+zval *findChildren (zval *data, char *parentId, char *pkey)
+{
+	zval *children =NULL, *retValue = NULL, *entry = NULL;
+	MAKE_STD_ZVAL(children);
+	array_init(children);
+	MAKE_STD_ZVAL(retValue);
+	array_init(retValue);
+	zend_string *key = NULL, *tpid = NULL;
+  zend_ulong index;
+
+	ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(data), index, key, entry) {
+		tpid = Z_STRVAL_P(zend_hash_find(Z_ARRVAL_P(entry), pkey));
+		if (*tpid == *parentId) {
+			add_assoc_zval(entry, "children", findChildren(data,tpid,pkey));
+			add_next_index_zval(children,entry);
+		}
+  }ZEND_HASH_FOREACH_END();
+	add_assoc_zval(retValue, "children", children);
+
+	return retValue;
+}
+
 PHP_FUNCTION(tree)
 {
 	zval *arrayData;
@@ -42,18 +65,18 @@ PHP_FUNCTION(tree)
 	int keyLen = strlen(*parentIdKey);
 
 	zval *retValue =NULL;
-	ALLOC_ZVAL(retValue);
+	MAKE_STD_ZVAL(retValue);
 	array_init(retValue);
 
+	// http://www.php230.com/1481009402.html
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|s|s",&arrayData,&parentId,&idLen, &parentIdKey,&keyLen) == FAILURE){
 			RETURN_ARR(retValue);
 	}
 
-	ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(arrayData), index, key, entry) {
-        
-  }ZEND_HASH_FOREACH_END();
-
+	retValue = findChildren(arrayData, parentId, parentIdKey);
+	RETURN_ARR(retValue);
 }
+
 /* }}} */
 /* The previous line is meant for vim and emacs, so it can correctly fold and
    unfold functions in source code. See the corresponding marks just before
