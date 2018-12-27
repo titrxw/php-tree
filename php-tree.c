@@ -36,11 +36,9 @@ PHP_INI_END()
 
 zval *findChildren (zval *data, char *parentId, char *pkey)
 {
-	zval *children =NULL, *retValue = NULL, *entry = NULL;
+	zval *children =NULL, *entry = NULL;
 	MAKE_STD_ZVAL(children);
 	array_init(children);
-	MAKE_STD_ZVAL(retValue);
-	array_init(retValue);
 	zend_string *key = NULL, *tpid = NULL;
   zend_ulong index;
 
@@ -60,9 +58,7 @@ zval *findChildren (zval *data, char *parentId, char *pkey)
 		zend_hash_index_update(children, index, entry);
   }ZEND_HASH_FOREACH_END();
 
-	add_assoc_zval(retValue, "children", children);
-
-	return retValue;
+	return children;
 }
 
 PHP_FUNCTION(tree)
